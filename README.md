@@ -1,2 +1,0 @@
-# terraform
-scndwb-snr
