@@ -1,6 +1,6 @@
-- AWS to scndwb-snr -
-1. 01 AWS network load-balancer;
-2. 01 AWS application load-balancer;
-3. 02 AWS EC2 instances:
-3.1. 01 Varnish cache AWS EC2 instance;
-3.2. 01 Magento application AWS EC2 instance;
+<b>-- AWS to scndwb-snr --</b></br>
+<b>1.</b> 01 AWS network load-balancer;</br>
+<b>2.</b> 01 AWS application load-balancer;</br>
+<b>3.</b> 02 AWS EC2 instances:</br>
+<b>3.1.</b> 01 Varnish cache on AWS EC2 instance;</br>
+<b>3.2.</b> 01 Magento application on AWS EC2 instance;</br>
