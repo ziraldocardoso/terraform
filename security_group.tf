@@ -29,8 +29,8 @@ resource "aws_security_group" "instance" {
     ipv6_cidr_blocks  = ["::/0"]
   }
 }
-resource "aws_security_group" "lb" {
-  name = "instance-connection"
+/* resource "aws_security_group" "lb" {
+  name = "lb-connection"
   ingress {
     from_port   = var.http_port
     to_port     = var.http_port
@@ -53,3 +53,4 @@ resource "aws_security_group" "lb" {
     ipv6_cidr_blocks  = ["::/0"]
   }
 }
+*/

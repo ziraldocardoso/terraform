@@ -27,16 +27,16 @@ resource "aws_lb_target_group" "varnish-cache-http" {
   name     = "varnish-cache-http"
   port     = var.http_port
   protocol = "HTTP"
-  vpc_id   = aws_vpc.block.id
+  vpc_id   = aws_default_vpc.block.id
   health_check {
     enabled = true
     healthy_threshold = 3
     interval = 10
-    matcher = 200
+    #matcher = 200
     path = "/health_check.php"
     port = "traffic-port"
     protocol = "HTTP"
-    timeout = 3
+    #timeout = 3
     unhealthy_threshold = 3
   }
 }
@@ -51,8 +51,7 @@ resource "aws_lb" "application" {
   name               = "application-load-balancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.lb.id]
-  subnets            = [aws_subnet.private-1a.id, aws_subnet.private-1b.id, aws_subnet.private-1c.id, aws_subnet.private-1d.id, aws_subnet.private-1e.id, aws_subnet.private-1f.id]
+  subnets            = [aws_default_subnet.private-1a.id, aws_default_subnet.private-1b.id, aws_default_subnet.private-1c.id, aws_default_subnet.private-1d.id, aws_default_subnet.private-1e.id, aws_default_subnet.private-1f.id]
   enable_deletion_protection = false
 }
 ##################################################################
@@ -69,6 +68,7 @@ resource "aws_lb_listener" "cache-https" {
   load_balancer_arn = aws_lb.application.arn
   port              = var.https_port
   protocol          = "HTTPS"
+  certificate_arn = "arn:aws:acm:us-east-1:664057883498:certificate/13e44446-8d12-4323-a793-82c0cfbac030"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.varnish-cache-http.arn
@@ -81,17 +81,17 @@ resource "aws_lb_target_group" "app-load-balancer-http" {
   name        = "app-load-balancer-http"
   port        = var.http_port
   protocol    = "TCP"
-  vpc_id      = aws_vpc.block.id
+  vpc_id      = aws_default_vpc.block.id
   target_type = "alb"
   health_check {
     enabled = true
     healthy_threshold = 3
     interval = 10
-    matcher = 200-399
+    #matcher = 200
     path = "/"
     port = "traffic-port"
     protocol = "HTTP"
-    timeout = 3
+    #timeout = 3
     unhealthy_threshold = 3
   }
 }
@@ -99,17 +99,17 @@ resource "aws_lb_target_group" "app-load-balancer-https" {
   name        = "app-load-balancer-https"
   port        = var.https_port
   protocol    = "TCP"
-  vpc_id      = aws_vpc.block.id
+  vpc_id      = aws_default_vpc.block.id
   target_type = "alb"
   health_check {
     enabled = true
     healthy_threshold = 3
     interval = 10
-    matcher = 200-399
+    #matcher = 200
     path = "/"
     port = "traffic-port"
     protocol = "HTTPS"
-    timeout = 3
+    #timeout = 3
     unhealthy_threshold = 3
   }
 }
@@ -129,8 +129,7 @@ resource "aws_lb" "network" {
   name               = "network-load-balancer"
   internal           = false
   load_balancer_type = "network"
-  security_groups    = [aws_security_group.lb.id]
-  subnets            = [aws_subnet.private-1a.id, aws_subnet.private-1b.id, aws_subnet.private-1c.id, aws_subnet.private-1d.id, aws_subnet.private-1e.id, aws_subnet.private-1f.id]
+  subnets            = [aws_default_subnet.private-1a.id, aws_default_subnet.private-1b.id, aws_default_subnet.private-1c.id, aws_default_subnet.private-1d.id, aws_default_subnet.private-1e.id, aws_default_subnet.private-1f.id]
   enable_deletion_protection = false
 }
 ##################################################################
