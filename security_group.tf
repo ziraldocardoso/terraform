@@ -1,6 +1,3 @@
-##################################################################
-# security group
-##################################################################
 resource "aws_security_group" "instance" {
   name = "instance-connection"
   ingress {
