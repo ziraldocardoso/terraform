@@ -2,11 +2,23 @@ provider "aws" {
   region = "us-east-1"
 }
 ##################################################################
+# key pair
+##################################################################
+resource "tls_private_key" "ec2" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+resource "aws_key_pair" "generated_key" {
+  key_name   = "ec2"
+  public_key = tls_private_key.ec2.public_key_openssh
+}
+##################################################################
 # EC2 instance
 ##################################################################
 resource "aws_instance" "varnish-cache" {
   ami           = "ami-0729e439b6769d6ab"
   instance_type = "t2.micro"
+  key_name      = aws_key_pair.generated_key.key_name
   tags = {
     Name = "varnish-cache"
     }
@@ -15,6 +27,7 @@ resource "aws_instance" "varnish-cache" {
 resource "aws_instance" "magento-app" {
   ami           = "ami-0729e439b6769d6ab"
   instance_type = "t2.micro"
+  key_name      = aws_key_pair.generated_key.key_name
   tags = {
     Name = "magento-app"
     }
@@ -44,7 +57,7 @@ resource "aws_lb_target_group" "varnish-cache-http" {
 resource "aws_lb_target_group_attachment" "varnish-cache-http" {
   target_group_arn = aws_lb_target_group.varnish-cache-http.arn
   target_id        = aws_instance.varnish-cache.id
-  port             = var.http_port
+  port             = 80
 }
 ##################################################################
 resource "aws_lb" "application" {
@@ -57,7 +70,7 @@ resource "aws_lb" "application" {
 ##################################################################
 resource "aws_lb_listener" "cache-http" {
   load_balancer_arn = aws_lb.application.arn
-  port              = var.http_port
+  port              = 80
   protocol          = "HTTP"
   default_action {
     type             = "forward"
@@ -66,7 +79,7 @@ resource "aws_lb_listener" "cache-http" {
 }
 resource "aws_lb_listener" "cache-https" {
   load_balancer_arn = aws_lb.application.arn
-  port              = var.https_port
+  port              = 443
   protocol          = "HTTPS"
   certificate_arn = "arn:aws:acm:us-east-1:664057883498:certificate/13e44446-8d12-4323-a793-82c0cfbac030"
   default_action {
@@ -79,7 +92,7 @@ resource "aws_lb_listener" "cache-https" {
 ##################################################################
 resource "aws_lb_target_group" "app-load-balancer-http" {
   name        = "app-load-balancer-http"
-  port        = var.http_port
+  port        = 80
   protocol    = "TCP"
   vpc_id      = aws_default_vpc.block.id
   target_type = "alb"
@@ -97,7 +110,7 @@ resource "aws_lb_target_group" "app-load-balancer-http" {
 }
 resource "aws_lb_target_group" "app-load-balancer-https" {
   name        = "app-load-balancer-https"
-  port        = var.https_port
+  port        = 443
   protocol    = "TCP"
   vpc_id      = aws_default_vpc.block.id
   target_type = "alb"
@@ -117,12 +130,12 @@ resource "aws_lb_target_group" "app-load-balancer-https" {
 resource "aws_lb_target_group_attachment" "app-load-balancer-http" {
     target_group_arn = aws_lb_target_group.app-load-balancer-http.arn
     target_id        = aws_lb.application.arn
-    port             = var.http_port
+    port             = 80
 }
 resource "aws_lb_target_group_attachment" "app-load-balancer-https" {
     target_group_arn = aws_lb_target_group.app-load-balancer-https.arn
     target_id        = aws_lb.application.arn
-    port             = var.https_port
+    port             = 443
 }
 ##################################################################
 resource "aws_lb" "network" {
@@ -135,8 +148,8 @@ resource "aws_lb" "network" {
 ##################################################################
 resource "aws_lb_listener" "alb-http" {
   load_balancer_arn = aws_lb.network.arn
-  port              = var.http_port
-  protocol          = "HTTP"
+  port              = 80
+  protocol          = "TCP"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.app-load-balancer-http.arn
@@ -144,8 +157,8 @@ resource "aws_lb_listener" "alb-http" {
 }
 resource "aws_lb_listener" "alb-https" {
   load_balancer_arn = aws_lb.network.arn
-  port              = var.https_port
-  protocol          = "HTTPS"
+  port              = 443
+  protocol          = "TCP"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.app-load-balancer-https.arn
