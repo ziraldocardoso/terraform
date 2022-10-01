@@ -81,11 +81,17 @@ resource "aws_lb_listener" "cache-https" {
   load_balancer_arn = aws_lb.application.arn
   port              = 443
   protocol          = "HTTPS"
-  certificate_arn = "arn:aws:acm:us-east-1:698936502986:certificate/a997ea53-0fea-4795-bf99-9b9e865be620"
+  certificate_arn   = "arn:aws:acm:us-east-1:698936502986:certificate/a997ea53-0fea-4795-bf99-9b9e865be620"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.varnish-cache-http.arn
   }
+}
+##################################################################
+resource "aws_load_balancer_listener_policy" "cache-https" {
+  load_balancer_name = "application-load-balancer"
+  load_balancer_port = 443
+  policy_names       = ["ELBSecurityPolicy-TLS-1-2-2017-01"]
 }
 ##################################################################
 # network load balancer 
