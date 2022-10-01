@@ -68,6 +68,12 @@ resource "aws_lb" "application" {
   enable_deletion_protection = false
 }
 ##################################################################
+resource "aws_load_balancer_listener_policy" "cache-https" {
+  load_balancer_name = application-load-balancer.name
+  load_balancer_port = 443
+  policy_names       = ["ELBSecurityPolicy-TLS-1-2-2017-01"]
+}
+##################################################################
 resource "aws_lb_listener" "cache-http" {
   load_balancer_arn = aws_lb.application.arn
   port              = 80
@@ -86,12 +92,6 @@ resource "aws_lb_listener" "cache-https" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.varnish-cache-http.arn
   }
-}
-##################################################################
-resource "aws_load_balancer_listener_policy" "cache-https" {
-  load_balancer_name = application-load-balancer.name
-  load_balancer_port = 443
-  policy_names       = ["ELBSecurityPolicy-TLS-1-2-2017-01"]
 }
 ##################################################################
 # network load balancer 
