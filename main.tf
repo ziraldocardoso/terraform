@@ -89,7 +89,7 @@ resource "aws_lb_listener" "cache-https" {
 }
 ##################################################################
 resource "aws_load_balancer_listener_policy" "cache-https" {
-  load_balancer_name = "application-load-balancer"
+  load_balancer_name = application-load-balancer.name
   load_balancer_port = 443
   policy_names       = ["ELBSecurityPolicy-TLS-1-2-2017-01"]
 }
