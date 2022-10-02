@@ -64,15 +64,18 @@ resource "aws_lb" "application" {
   name               = "application-load-balancer"
   internal           = false
   load_balancer_type = "application"
+  tags = {
+    Name = "application-load-balancer"
+    }
   subnets            = [aws_default_subnet.private-1a.id, aws_default_subnet.private-1b.id, aws_default_subnet.private-1c.id, aws_default_subnet.private-1d.id, aws_default_subnet.private-1e.id, aws_default_subnet.private-1f.id]
   enable_deletion_protection = false
 }
 ##################################################################
-resource "aws_load_balancer_listener_policy" "cache-https" {
-  load_balancer_name = application-load-balancer.name
+/* resource "aws_load_balancer_listener_policy" "cache-https" {
+  load_balancer_name = aws_lb.application.name
   load_balancer_port = 443
   policy_names       = ["ELBSecurityPolicy-TLS-1-2-2017-01"]
-}
+} */
 ##################################################################
 resource "aws_lb_listener" "cache-http" {
   load_balancer_arn = aws_lb.application.arn
@@ -87,7 +90,7 @@ resource "aws_lb_listener" "cache-https" {
   load_balancer_arn = aws_lb.application.arn
   port              = 443
   protocol          = "HTTPS"
-  certificate_arn   = "arn:aws:acm:us-east-1:698936502986:certificate/a997ea53-0fea-4795-bf99-9b9e865be620"
+  certificate_arn   = "arn:aws:acm:us-east-1:437897077056:certificate/5f0a008e-6470-47a5-b507-a66ecd4bfd26"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.varnish-cache-http.arn
@@ -148,6 +151,9 @@ resource "aws_lb" "network" {
   name               = "network-load-balancer"
   internal           = false
   load_balancer_type = "network"
+  tags = {
+    Name = "network-load-balancer"
+    }
   subnets            = [aws_default_subnet.private-1a.id, aws_default_subnet.private-1b.id, aws_default_subnet.private-1c.id, aws_default_subnet.private-1d.id, aws_default_subnet.private-1e.id, aws_default_subnet.private-1f.id]
   enable_deletion_protection = false
 }
